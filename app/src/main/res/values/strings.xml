@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">needthis</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="enter_email">E-mail</string>
+    <string name="enter_pass">Password</string>
+    <string name="already_registered">Already Registered ? Sign In</string>
+</resources>
