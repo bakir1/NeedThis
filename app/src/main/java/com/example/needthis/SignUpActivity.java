@@ -36,7 +36,7 @@ public class SignUpActivity extends AppCompatActivity {
         signUpBtn = findViewById(R.id.sign_up_btn);
         signINText = findViewById(R.id.sign_in_text);
 
-        signINText.setOnClickListener(v -> startActivity(new Intent(SignUpActivity.this, LoginActivity.class)));
+        signINText.setOnClickListener(v -> startActivity(new Intent(SignUpActivity.this, SignInActivity.class)));
 
         signUpBtn.setOnClickListener(v -> {
             String email = emailSignUp.getText().toString();
@@ -45,7 +45,8 @@ public class SignUpActivity extends AppCompatActivity {
             if (!email.isEmpty() && !pass.isEmpty()){
                 auth.createUserWithEmailAndPassword(email, pass).addOnCompleteListener(task -> {
                     if (task.isSuccessful()){
-                        startActivity(new Intent(SignUpActivity.this, LoginActivity.class));
+                        Toast.makeText(SignUpActivity.this, "Registered Successfully!", Toast.LENGTH_SHORT).show();
+                        startActivity(new Intent(SignUpActivity.this, SetUpActivity.class));
                         finish();
                     }else {
                         Toast.makeText(SignUpActivity.this, Objects.requireNonNull(task.getException()).getMessage(), Toast.LENGTH_SHORT).show();

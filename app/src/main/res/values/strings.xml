@@ -4,4 +4,10 @@
     <string name="enter_email">E-mail</string>
     <string name="enter_pass">Password</string>
     <string name="already_registered">Already Registered ? Sign In</string>
+    <string name="login">Login</string>
+    <string name="not_registered">Not Registery Yet? Sign Up</string>
+    <string name="profile">My Profile</string>
+    <string name="sign_out">Sign Out</string>
+    <string name="username">Enter Your Name</string>
+    <string name="save">Save</string>
 </resources>
