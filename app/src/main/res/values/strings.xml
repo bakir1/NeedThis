@@ -10,4 +10,6 @@
     <string name="sign_out">Sign Out</string>
     <string name="username">Enter Your Name</string>
     <string name="save">Save</string>
+    <string name="add_post">Add Post</string>
+    <string name="enter_caption">Write Text Here ...</string>
 </resources>

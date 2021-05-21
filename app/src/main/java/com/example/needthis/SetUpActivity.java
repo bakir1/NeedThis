@@ -49,6 +49,7 @@ public class SetUpActivity extends AppCompatActivity {
     private Uri mImageUri;
     private ProgressBar progressBar;
     private Uri downloadUri = null;
+    private boolean isPhotoSelected = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,6 +82,8 @@ public class SetUpActivity extends AppCompatActivity {
                         String name = task.getResult().getString("name");
                         String imageUrl = task.getResult().getString("image");
                         mProfileName.setText(name);
+                        mImageUri = Uri.parse(imageUrl);
+
                         Glide.with(SetUpActivity.this).load(imageUrl).into(circleImageView);
                     }
                 }
@@ -92,23 +95,26 @@ public class SetUpActivity extends AppCompatActivity {
             public void onClick(View v) {
                 progressBar.setVisibility(View.VISIBLE);
                 String name = mProfileName.getText().toString();
-                if (!name.isEmpty() && mImageUri != null){
-                    StorageReference imageRef = storageReference.child("Profile_pics").child(Uid + ".jpg");
-
-                    imageRef.putFile(mImageUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                            if (task.isSuccessful()){
-                                saveToFireStore(task, name, imageRef);
-                            }else {
-                                progressBar.setVisibility(View.INVISIBLE);
-                                Toast.makeText(SetUpActivity.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                StorageReference imageRef = storageReference.child("Profile_pics").child(Uid + ".jpg");
+                if (isPhotoSelected) {
+                    if (!name.isEmpty() && mImageUri != null) {
+                        imageRef.putFile(mImageUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                                if (task.isSuccessful()) {
+                                    saveToFireStore(task, name, imageRef);
+                                } else {
+                                    progressBar.setVisibility(View.INVISIBLE);
+                                    Toast.makeText(SetUpActivity.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                                }
                             }
-                        }
-                    });
+                        });
+                    } else {
+                        progressBar.setVisibility(View.INVISIBLE);
+                        Toast.makeText(SetUpActivity.this, "Please Select picture and write your name!", Toast.LENGTH_SHORT).show();
+                    }
                 }else {
-                    progressBar.setVisibility(View.INVISIBLE);
-                    Toast.makeText(SetUpActivity.this, "Please Select picture and write your name!", Toast.LENGTH_SHORT).show();
+                    saveToFireStore(null, name, imageRef);
                 }
             }
         });
@@ -132,28 +138,32 @@ public class SetUpActivity extends AppCompatActivity {
     }
 
     private void saveToFireStore(Task<UploadTask.TaskSnapshot> task, String name, StorageReference imageRef){
-        imageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-            @Override
-            public void onSuccess(Uri uri) {
-                downloadUri = uri;
-                HashMap<String, Object> map = new HashMap<>();
-                map.put("name", name);
-                map.put("image", downloadUri.toString());
+        if (task != null){
+            imageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                @Override
+                public void onSuccess(Uri uri) {
+                    downloadUri = uri;
+                }
+            });
+        }else {
+            downloadUri = mImageUri;
+        }
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("name", name);
+        map.put("image", downloadUri.toString());
 
-                firestore.collection("Users").document(Uid).set(map).addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()){
-                            progressBar.setVisibility(View.INVISIBLE);
-                            Toast.makeText(SetUpActivity.this, "Profile Settings Saved", Toast.LENGTH_SHORT).show();
-                            startActivity(new Intent(SetUpActivity.this, MainActivity.class));
-                            finish();
-                        }else {
-                            progressBar.setVisibility(View.INVISIBLE);
-                            Toast.makeText(SetUpActivity.this, task.getException().toString(), Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
+        firestore.collection("Users").document(Uid).set(map).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()){
+                    progressBar.setVisibility(View.INVISIBLE);
+                    Toast.makeText(SetUpActivity.this, "Profile Settings Saved", Toast.LENGTH_SHORT).show();
+                    startActivity(new Intent(SetUpActivity.this, MainActivity.class));
+                    finish();
+                }else {
+                    progressBar.setVisibility(View.INVISIBLE);
+                    Toast.makeText(SetUpActivity.this, task.getException().toString(), Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
@@ -167,7 +177,10 @@ public class SetUpActivity extends AppCompatActivity {
             if (resultCode == RESULT_OK){
                 mImageUri = result.getUri();
                 circleImageView.setImageURI(mImageUri);
-            } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
+
+                isPhotoSelected = true;
+            }
+            else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
                 Toast.makeText(this, result.getError().getMessage(), Toast.LENGTH_SHORT).show();
             }
         }
