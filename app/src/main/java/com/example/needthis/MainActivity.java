@@ -1,8 +1,10 @@
 package com.example.needthis;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
@@ -10,14 +12,26 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
+import com.example.needthis.Adapter.PostAdapter;
+import com.example.needthis.Model.Post;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.ListenerRegistration;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -26,6 +40,10 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseFirestore firestore;
     private RecyclerView mRecyclerView;
     private FloatingActionButton fab;
+    private PostAdapter adapter;
+    private List<Post> list;
+    private Query query;
+    private ListenerRegistration listenerRegistration;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +55,13 @@ public class MainActivity extends AppCompatActivity {
         mainToolbar = findViewById(R.id.main_toolbar);
 
         mRecyclerView = findViewById(R.id.recyclerView);
+
+        mRecyclerView.setHasFixedSize(true);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
+        list = new ArrayList<>();
+        adapter = new PostAdapter(MainActivity.this, list);
+        mRecyclerView.setAdapter(adapter);
+
         fab = findViewById(R.id.floatingActionButton);
         setSupportActionBar(mainToolbar);
         getSupportActionBar().setTitle("needthis");
@@ -47,7 +72,33 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(MainActivity.this, AddPostActivity.class));
             }
         });
-
+        if (firebaseAuth.getCurrentUser() != null){
+            mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+                @Override
+                public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                    super.onScrolled(recyclerView, dx, dy);
+                    Boolean isBottom = !mRecyclerView.canScrollHorizontally(1);
+                    if (isBottom)
+                        Toast.makeText(MainActivity.this, "Reached Bottom", Toast.LENGTH_SHORT).show();
+                }
+            });
+            query = firestore.collection("Posts").orderBy("time", Query.Direction.DESCENDING);
+            listenerRegistration = query.addSnapshotListener(MainActivity.this, new EventListener<QuerySnapshot>() {
+                @Override
+                public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                    for (DocumentChange doc : value.getDocumentChanges()){
+                        if (doc.getType() == DocumentChange.Type.ADDED){
+                            Post post = doc.getDocument().toObject(Post.class);
+                            list.add(post);
+                            adapter.notifyDataSetChanged();
+                        }else {
+                            adapter.notifyDataSetChanged();
+                        }
+                    }
+                    listenerRegistration.remove();
+                }
+            });
+        }
     }
 
     @Override
