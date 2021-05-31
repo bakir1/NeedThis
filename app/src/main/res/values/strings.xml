@@ -12,4 +12,6 @@
     <string name="save">Save</string>
     <string name="add_post">Add Post</string>
     <string name="enter_caption">Write Text Here ...</string>
+    <string name="add_comment">Add Comment</string>
+    <string name="write_Comment">Write Comment</string>
 </resources>
