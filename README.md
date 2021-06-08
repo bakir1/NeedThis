@@ -1,8 +1,5 @@
 # needthis
 
-
-Project for Introduction to Mobile Programming
-
 Project Name: "NeedThis"
 
 -Register     
