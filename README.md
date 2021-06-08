@@ -7,15 +7,17 @@ Project Name: "NeedThis"
 
 -Register     
 
---User email 
 
- -- password 
+--User email 
+-- password 
 --register button
+
 
 -Login                                  
 -- email 
 --password
 --login button
+
 
 -Navigation
 --In navigation user will also have:
