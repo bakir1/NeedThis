@@ -2,21 +2,19 @@
 
 Project Name: "NeedThis"
 
--Register     
-
-
+-Register                                  
 --User email 
--- password 
+--password 
 --register button
 
 
 -Login                                  
--- email 
+--email 
 --password
 --login button
 
 
--Navigation
+-Navigation                                  
 --In navigation user will also have:
 ----Buttons
 -----Profile Settings
