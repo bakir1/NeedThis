@@ -56,8 +56,5 @@ public class SignUpActivity extends AppCompatActivity {
                 Toast.makeText(SignUpActivity.this, "Please Input All Fields!", Toast.LENGTH_SHORT).show();
             }
         });
-
-
-
     }
 }

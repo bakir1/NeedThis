@@ -112,7 +112,7 @@ public class CommentsActivity extends AppCompatActivity {
                         @Override
                         public void onComplete(@NonNull Task<DocumentReference> task) {
                             if (task.isSuccessful()){
-                                Toast.makeText(CommentsActivity.this, "Comment Added!em", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(CommentsActivity.this, "Comment Added!", Toast.LENGTH_SHORT).show();
                             }else {
                                 Toast.makeText(CommentsActivity.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                             }

@@ -82,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
                     super.onScrolled(recyclerView, dx, dy);
                     Boolean isBottom = !mRecyclerView.canScrollHorizontally(1);
                     if (isBottom)
-                        Toast.makeText(MainActivity.this, "Reached Bottom", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MainActivity.this, "Scroll Down", Toast.LENGTH_SHORT).show();
                 }
             });
             query = firestore.collection("Posts").orderBy("time", Query.Direction.DESCENDING);
